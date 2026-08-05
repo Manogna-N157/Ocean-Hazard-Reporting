@@ -1,0 +1,10 @@
+const router = require('express').Router();
+const { authenticate, authorize, requireApprovedAuthority } = require('../middleware/authMiddleware');
+const controller = require('../controllers/adminController');
+router.use(authenticate, requireApprovedAuthority);
+router.get('/reports', authorize('Admin', 'Authority'), controller.getAllReports);
+router.put('/reports/:id/verify', authorize('Admin', 'Authority'), controller.verifyReport);
+router.put('/reports/:id/reject', authorize('Admin', 'Authority'), controller.rejectReport);
+router.get('/authorities/pending', authorize('Admin'), controller.getPendingAuthorities);
+router.put('/authorities/:id/approve', authorize('Admin'), controller.approveAuthority);
+module.exports = router;
