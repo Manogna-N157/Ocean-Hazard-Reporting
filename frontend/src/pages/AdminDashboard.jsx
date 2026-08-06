@@ -39,7 +39,7 @@ const AdminDashboard = () => {
   const loadData = async () => {
     try {
       const [reportResponse, pendingAuthResponse] = await Promise.all([
-        api.get('/admin/reports'),
+        api.get('/reports/operational'),
         api.get('/admin/pending-authorities').catch(() => ({ data: { authorities: [] } })),
       ]);
 
@@ -137,7 +137,7 @@ const AdminDashboard = () => {
       'primary',
       async () => {
         try {
-          await api.put(`/admin/reports/${report.id}/verify`);
+          await api.put(`/reports/operational/${report.id}/verify`);
           setReports((prev) =>
             prev.map((r) => (r.id === report.id ? { ...r, status: 'Verified' } : r))
           );
@@ -159,7 +159,7 @@ const AdminDashboard = () => {
       'danger',
       async () => {
         try {
-          await api.put(`/admin/reports/${report.id}/reject`);
+          await api.put(`/reports/operational/${report.id}/reject`);
           setReports((prev) =>
             prev.map((r) => (r.id === report.id ? { ...r, status: 'Rejected' } : r))
           );
@@ -246,8 +246,8 @@ const AdminDashboard = () => {
   return (
     <div>
       <div style={{ marginBottom: '2rem' }}>
-        <h2>Authority / Admin Dashboard</h2>
-        <p className="text-muted">Manage authority applications, review crowdsourced hazard reports, and resolve active incidents.</p>
+        <h2>Admin Dashboard</h2>
+        <p className="text-muted">System statistics, authority applications, user oversight, and report operations.</p>
       </div>
 
       {/* Success Notification Banner */}

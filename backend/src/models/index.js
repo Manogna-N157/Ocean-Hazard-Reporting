@@ -4,6 +4,7 @@ const Alert = require('./Alert');
 const SocialMediaAnalytics = require('./SocialMediaAnalytics');
 const UserProfile = require('./UserProfile');
 const AIAnalysis = require('./AIAnalysis');
+const SocialMediaAnalysis = require('./SocialMediaAnalysis');
 
 User.hasMany(HazardReport, { foreignKey: 'user_id', as: 'reports', onDelete: 'CASCADE' });
 HazardReport.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
@@ -17,5 +18,7 @@ User.hasMany(HazardReport, { foreignKey: 'verified_by', as: 'verified_reports' }
 HazardReport.belongsTo(User, { foreignKey: 'verified_by', as: 'verifier' });
 HazardReport.hasOne(AIAnalysis, { foreignKey: 'report_id', as: 'aiAnalysis', onDelete: 'CASCADE' });
 AIAnalysis.belongsTo(HazardReport, { foreignKey: 'report_id', as: 'report' });
+User.hasMany(SocialMediaAnalysis, { foreignKey: 'user_id', as: 'socialMediaAnalyses', onDelete: 'CASCADE' });
+SocialMediaAnalysis.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 
-module.exports = { User, HazardReport, Alert, SocialMediaAnalytics, UserProfile, AIAnalysis };
+module.exports = { User, HazardReport, Alert, SocialMediaAnalytics, SocialMediaAnalysis, UserProfile, AIAnalysis };

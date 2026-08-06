@@ -42,6 +42,20 @@ const ANALYSIS_SCHEMA = {
   required: ['hazard_type', 'confidence', 'severity', 'explanation', 'recommended_action'],
 };
 
+const SOCIAL_HAZARD_TYPES = [...HAZARD_TYPES, 'None'];
+const SOCIAL_ANALYSIS_SCHEMA = {
+  type: Type.OBJECT,
+  properties: {
+    hazard_type: { type: Type.STRING, enum: SOCIAL_HAZARD_TYPES },
+    summary: { type: Type.STRING },
+    confidence_score: { type: Type.NUMBER },
+    risk_level: { type: Type.STRING, enum: SEVERITIES },
+    recommendation: { type: Type.STRING },
+    should_investigate: { type: Type.BOOLEAN },
+  },
+  required: ['hazard_type', 'summary', 'confidence_score', 'risk_level', 'recommendation', 'should_investigate'],
+};
+
 const PROMPT =
   'Analyze this ocean or coastal image for a possible environmental hazard. Return one hazard type, confidence from 0 to 100, severity, a concise explanation of visible evidence, and one short practical action for coastal authorities. If the image is unclear, use Other with lower confidence. Return JSON only.';
 
@@ -240,8 +254,61 @@ const analyzeOceanHazardImage = async ({ imageBuffer, mimeType }) => {
   throw formatGeminiError(lastError || new Error('No supported Gemini model is available.'));
 };
 
+const validateSocialAnalysis = (result) => {
+  const confidenceScore = Number(result?.confidence_score);
+  if (!result || !SOCIAL_HAZARD_TYPES.includes(result.hazard_type) || !SEVERITIES.includes(result.risk_level)
+    || !Number.isFinite(confidenceScore) || confidenceScore < 0 || confidenceScore > 100
+    || typeof result.summary !== 'string' || !result.summary.trim()
+    || typeof result.recommendation !== 'string' || !result.recommendation.trim()
+    || typeof result.should_investigate !== 'boolean') {
+    throw new Error('Gemini returned an invalid social-media analysis.');
+  }
+
+  if (result.hazard_type === 'None') {
+    return {
+      hazard_type: 'None', summary: result.summary.trim().slice(0, 1000), confidence_score: Math.round(confidenceScore * 100) / 100,
+      risk_level: 'Low', recommendation: 'No action required.', should_investigate: false,
+    };
+  }
+
+  return {
+    hazard_type: result.hazard_type, summary: result.summary.trim().slice(0, 1000), confidence_score: Math.round(confidenceScore * 100) / 100,
+    risk_level: result.risk_level, recommendation: result.recommendation.trim().slice(0, 500), should_investigate: result.should_investigate,
+  };
+};
+
+const analyzeSocialMediaContent = async ({ text, imageBuffer, mimeType }) => {
+  const hasText = typeof text === 'string' && text.trim();
+  const hasImage = imageBuffer?.length && mimeType?.startsWith('image/');
+  if (!hasText && !hasImage) {
+    const error = new Error('Provide social-media text or a valid screenshot image.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const prompt = `Analyze this manually supplied social-media ${hasImage ? 'screenshot' : 'post text'} for an ocean or coastal hazard. Return JSON only. Identify a real hazard only when supported by the content. For unrelated content use hazard_type None, risk_level Low, recommendation No action required., and should_investigate false. For hazards, give a concise summary, confidence_score from 0 to 100, risk_level, recommendation, and whether authorities should investigate.`;
+  const contents = [{ role: 'user', parts: [{ text: hasText ? `${prompt}\n\nPost text:\n${text.trim()}` : prompt }] }];
+  if (hasImage) contents[0].parts.push({ inlineData: { mimeType, data: imageBuffer.toString('base64') } });
+
+  const client = getClient();
+  let lastError;
+  for (const model of getModelsToTry()) {
+    try {
+      const request = { model, contents, config: { responseMimeType: 'application/json', responseJsonSchema: SOCIAL_ANALYSIS_SCHEMA } };
+      const response = await client.models.generateContent(request);
+      return validateSocialAnalysis(parseJson(extractResponseText(response)));
+    } catch (error) {
+      lastError = error;
+      if (isModelNotFoundError(error)) continue;
+      throw formatGeminiError(error);
+    }
+  }
+  throw formatGeminiError(lastError || new Error('No supported Gemini model is available.'));
+};
+
 module.exports = {
   analyzeOceanHazardImage,
+  analyzeSocialMediaContent,
   DEFAULT_MODEL,
   RETIRED_MODELS,
 };

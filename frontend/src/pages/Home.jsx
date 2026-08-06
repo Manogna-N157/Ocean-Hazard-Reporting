@@ -17,11 +17,10 @@ const Home = () => {
         boxShadow: 'var(--shadow-md)'
       }}>
         <h1 style={{ color: 'white', fontSize: '3rem', marginBottom: '1.5rem' }}>
-          Integrated Platform for Crowdsourced Ocean Hazard Reporting
+          OceanGuard
         </h1>
         <p style={{ fontSize: '1.2rem', maxWidth: '800px', margin: '0 auto 2.5rem', opacity: 0.9 }}>
-          Empowering citizens and authorities to report, monitor, and respond to marine incidents, 
-          oil spills, and ocean pollution in real-time.
+          Integrated Platform for Crowdsourced Ocean Hazard Reporting and Social Media Analytics
         </p>
         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
           <Link to="/report-hazard" className="btn btn-secondary" style={{ backgroundColor: 'var(--color-secondary)', color: 'white', borderColor: 'var(--color-secondary)' }}>

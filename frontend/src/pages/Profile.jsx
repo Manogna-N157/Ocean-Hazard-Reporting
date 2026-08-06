@@ -1,0 +1,3 @@
+import React from 'react';
+const Profile = ({ user }) => <div className="main-content"><h2>My Profile</h2><p className="text-muted mb-3">Your OceanGuard account details.</p><div className="card" style={{ maxWidth: '620px' }}><p><strong>Name:</strong> {user?.name || '—'}</p><p><strong>Email:</strong> {user?.email || '—'}</p><p><strong>Role:</strong> {user?.role || '—'}</p>{user?.role === 'Authority' && <><p><strong>Department:</strong> {user?.department_name || user?.department || 'Not available'}</p><p><strong>Organization:</strong> {user?.organization_name || user?.organization || 'Not available'}</p></>}{user?.approval_status && <p><strong>Account status:</strong> {user.approval_status}</p>}</div></div>;
+export default Profile;

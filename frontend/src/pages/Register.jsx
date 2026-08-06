@@ -48,7 +48,8 @@ const Register = ({ setIsAuthenticated, setCurrentUser }) => {
   return (
     <div className="main-content" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 'calc(100vh - 80px)' }}>
       <div className="card" style={{ width: '100%', maxWidth: '400px' }}>
-        <h2 className="text-center mb-4">Register</h2>
+        <h2 className="text-center" style={{ marginBottom: '0.25rem' }}>Join OceanGuard</h2>
+        <p className="text-center text-muted mb-4">Create an account for crowdsourced ocean hazard reporting.</p>
         
         {error && (
           <div style={{ backgroundColor: 'var(--color-danger-light)', color: 'var(--color-danger)', padding: '0.75rem', borderRadius: 'var(--border-radius-sm)', marginBottom: '1rem' }}>

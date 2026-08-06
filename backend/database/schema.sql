@@ -77,3 +77,22 @@ CREATE TABLE IF NOT EXISTS social_media_analytics (
   location VARCHAR(255) NOT NULL,
   date DATE NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS social_media_analyses (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  role ENUM('Authority', 'Admin') NOT NULL,
+  input_type ENUM('Text', 'Image', 'URL') NOT NULL,
+  original_text TEXT NULL,
+  original_url VARCHAR(2048) NULL,
+  extracted_text TEXT NULL,
+  uploaded_image_path VARCHAR(255) NULL,
+  detected_hazard VARCHAR(100) NOT NULL,
+  summary TEXT NOT NULL,
+  confidence_score DECIMAL(5,2) NOT NULL,
+  risk_level ENUM('Low', 'Medium', 'High') NOT NULL,
+  recommendation VARCHAR(500) NOT NULL,
+  should_investigate BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_social_media_analysis_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);

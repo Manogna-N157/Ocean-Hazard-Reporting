@@ -64,4 +64,8 @@ const login = async (req, res, next) => {
   } catch (error) { next(error); }
 };
 
-module.exports = { register, applyForAuthority, login };
+// JWTs are stateless, so there is no server session to destroy. Clients must discard
+// the token after this successful authenticated acknowledgement.
+const logout = (req, res) => res.status(200).json({ success: true, message: 'Logged out successfully.' });
+
+module.exports = { register, applyForAuthority, login, logout };

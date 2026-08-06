@@ -3,7 +3,7 @@ const { refreshProfileCounters } = require('../services/profileService');
 
 const reportFields = ['hazard_type', 'description', 'latitude', 'longitude', 'location', 'severity'];
 const imagePath = (file) => file ? `/uploads/${file.filename}` : undefined;
-const canManage = (user, report) => user.role === 'Admin' || user.role === 'Authority' || report.user_id === user.id;
+const canManage = (user, report) => user.role === 'Admin' || (user.role === 'Citizen' && report.user_id === user.id);
 
 const createReport = async (req, res, next) => {
   try {

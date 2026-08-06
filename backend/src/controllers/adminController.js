@@ -1,4 +1,4 @@
-const { HazardReport, User, AIAnalysis } = require('../models');
+const { HazardReport, User, UserProfile, AIAnalysis } = require('../models');
 const { refreshProfileCounters } = require('../services/profileService');
 
 const getAllReports = async (req, res, next) => {
@@ -42,6 +42,27 @@ const updateAuthorityApprovalStatus = (approval_status, message) => async (req, 
   } catch (error) { next(error); }
 };
 
+const getUsers = async (req, res, next) => {
+  try {
+    const users = await User.findAll({ attributes: { exclude: ['password'] }, order: [['created_at', 'DESC']] });
+    res.json({ count: users.length, users });
+  } catch (error) { next(error); }
+};
+
+const updateUser = async (req, res, next) => {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found.' });
+    if (user.id === req.user.id) return res.status(400).json({ message: 'Administrators cannot change their own role or approval status.' });
+    const updates = Object.fromEntries(Object.entries(req.body).filter(([key]) => ['name', 'role', 'approval_status'].includes(key)));
+    if (!Object.keys(updates).length) return res.status(400).json({ message: 'Provide a supported user field to update.' });
+    await user.update(updates);
+    if (updates.name || updates.role) await UserProfile.update({ ...(updates.name && { name: user.name }), ...(updates.role && { role: user.role }) }, { where: { user_id: user.id } });
+    const { password, ...safeUser } = user.toJSON();
+    res.json({ message: 'User updated.', user: safeUser });
+  } catch (error) { next(error); }
+};
+
 module.exports = {
   getAllReports,
   verifyReport: changeStatus('Verified'),
@@ -49,4 +70,6 @@ module.exports = {
   getPendingAuthorities,
   approveAuthority: updateAuthorityApprovalStatus('Approved', 'Authority account approved.'),
   rejectAuthority: updateAuthorityApprovalStatus('Rejected', 'Authority account rejected.'),
+  getUsers,
+  updateUser,
 };

@@ -2,7 +2,7 @@
 require('dotenv').config();
 const { DataTypes } = require('sequelize');
 const sequelize = require('../src/config/database');
-const { UserProfile, AIAnalysis } = require('../src/models');
+const { UserProfile, AIAnalysis, SocialMediaAnalysis } = require('../src/models');
 
 const addColumnIfMissing = async (table, column, definition) => {
   const columns = await sequelize.getQueryInterface().describeTable(table);
@@ -29,6 +29,10 @@ const runMigrations = async () => {
   await addForeignKeyIfMissing('hazard_reports', 'verified_by', 'fk_report_verifier', 'SET NULL');
   await UserProfile.sync();
   await AIAnalysis.sync();
+  await SocialMediaAnalysis.sync();
+  await addColumnIfMissing('social_media_analyses', 'original_url', { type: DataTypes.STRING(2048), allowNull: true });
+  await addColumnIfMissing('social_media_analyses', 'extracted_text', { type: DataTypes.TEXT, allowNull: true });
+  await sequelize.getQueryInterface().changeColumn('social_media_analyses', 'input_type', { type: DataTypes.ENUM('Text', 'Image', 'URL'), allowNull: false });
   await addColumnIfMissing('ai_analyses', 'explanation', { type: DataTypes.TEXT, allowNull: false, defaultValue: '' });
   await sequelize.query(`INSERT INTO user_profiles (user_id, name, email, role, date_joined, reports_submitted, verified_reports, pending_reports)
     SELECT u.id, u.name, u.email, u.role, u.created_at,
