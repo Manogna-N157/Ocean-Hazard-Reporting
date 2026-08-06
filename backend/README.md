@@ -32,7 +32,8 @@ Send `Authorization: Bearer <JWT_TOKEN>` for protected endpoints. Registration a
 | Method | Endpoint | Access | Purpose |
 | --- | --- | --- | --- |
 | POST | `/api/auth/register` | Public | Register a Citizen |
-| POST | `/api/auth/login` | Public | Login and get JWT |
+| POST | /api/auth/authority-application | Public | Submit a pending Authority application |
+| POST | /api/auth/login | Public | Login and get JWT |
 | POST | `/api/reports` | Logged in | Create report; use `multipart/form-data`, optional `image` file |
 | GET | `/api/reports` | Public | List reports |
 | GET | `/api/reports/map` | Public | Leaflet-friendly report coordinates |
@@ -41,7 +42,10 @@ Send `Authorization: Bearer <JWT_TOKEN>` for protected endpoints. Registration a
 | DELETE | `/api/reports/:id` | Owner/Authority/Admin | Delete report |
 | GET | `/api/admin/reports` | Authority/Admin | List reports for moderation |
 | PUT | `/api/admin/reports/:id/verify` | Authority/Admin | Mark Verified |
-| PUT | `/api/admin/reports/:id/reject` | Authority/Admin | Mark Rejected |
+| PUT | /api/admin/reports/:id/reject | Authority/Admin | Mark Rejected |
+| GET | /api/admin/pending-authorities | Admin | List pending Authority applications |
+| PUT | /api/admin/approve-authority/:id | Admin | Approve a pending Authority application |
+| PUT | /api/admin/reject-authority/:id | Admin | Reject a pending Authority application |
 | POST | `/api/alerts` | Authority/Admin | Create alert |
 | GET | `/api/alerts` | Public | List alerts |
 | GET | `/api/dashboard/statistics` | Authority/Admin | Summary counts |

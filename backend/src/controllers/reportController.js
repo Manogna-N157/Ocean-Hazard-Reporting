@@ -1,4 +1,4 @@
-const { HazardReport, User } = require('../models');
+const { HazardReport, User, AIAnalysis } = require('../models');
 const { refreshProfileCounters } = require('../services/profileService');
 
 const reportFields = ['hazard_type', 'description', 'latitude', 'longitude', 'location', 'severity'];
@@ -18,14 +18,14 @@ const createReport = async (req, res, next) => {
 const getReports = async (req, res, next) => {
   try {
     const where = req.user.role === 'Citizen' ? { user_id: req.user.id } : {};
-    const reports = await HazardReport.findAll({ where, include: [{ model: User, as: 'user', attributes: ['id', 'name', 'email'] }], order: [['created_at', 'DESC']] });
+    const reports = await HazardReport.findAll({ where, include: [{ model: User, as: 'user', attributes: ['id', 'name', 'email'] }, { model: AIAnalysis, as: 'aiAnalysis' }], order: [['created_at', 'DESC']] });
     res.json({ count: reports.length, reports });
   } catch (error) { next(error); }
 };
 
 const getReport = async (req, res, next) => {
   try {
-    const report = await HazardReport.findByPk(req.params.id, { include: [{ model: User, as: 'user', attributes: ['id', 'name', 'email'] }] });
+    const report = await HazardReport.findByPk(req.params.id, { include: [{ model: User, as: 'user', attributes: ['id', 'name', 'email'] }, { model: AIAnalysis, as: 'aiAnalysis' }] });
     if (!report) return res.status(404).json({ message: 'Report not found.' });
     if (req.user.role === 'Citizen' && report.user_id !== req.user.id) return res.status(403).json({ message: 'You can view only your own reports.' });
     res.json({ report });

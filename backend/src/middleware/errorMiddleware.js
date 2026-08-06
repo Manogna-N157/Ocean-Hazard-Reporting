@@ -4,7 +4,10 @@ const errorHandler = (err, req, res, next) => {
   if (err.name === 'SequelizeValidationError' || err.name === 'SequelizeUniqueConstraintError') {
     return res.status(400).json({ message: err.errors[0].message });
   }
-  return res.status(err.statusCode || 500).json({ message: err.message || 'Internal server error.' });
+  const statusCode = err.statusCode || err.status || 500;
+  const payload = { message: err.message || 'Internal server error.' };
+  if (err.code) payload.code = err.code;
+  return res.status(statusCode).json(payload);
 };
 
 module.exports = errorHandler;

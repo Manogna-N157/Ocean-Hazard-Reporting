@@ -53,7 +53,12 @@ const login = async (req, res, next) => {
     if (!email || !password) return res.status(400).json({ message: 'Email and password are required.' });
     const user = await User.findOne({ where: { email } });
     if (!user || !(await bcrypt.compare(password, user.password))) return res.status(401).json({ message: 'Invalid email or password.' });
-    if (user.role === 'Authority' && user.approval_status !== 'Approved') return res.status(403).json({ message: 'Your authority account is awaiting administrator approval.' });
+    if (user.role === 'Authority' && user.approval_status === 'Pending') {
+      return res.status(403).json({ message: 'Your authority account is awaiting administrator approval.' });
+    }
+    if (user.role === 'Authority' && user.approval_status === 'Rejected') {
+      return res.status(403).json({ message: 'Your authority account has been rejected.' });
+    }
     const profile = await UserProfile.findOne({ where: { user_id: user.id } });
     return res.json({ message: 'Login successful.', token: createToken(user), user: { id: user.id, name: user.name, email: user.email, role: user.role, approval_status: user.approval_status }, profile });
   } catch (error) { next(error); }

@@ -1,13 +1,16 @@
-const { HazardReport, Alert, User, UserProfile } = require('../models');
+const { HazardReport, Alert, User, UserProfile, AIAnalysis } = require('../models');
 
 const getStatistics = async (req, res, next) => {
   try {
     if (req.user.role === 'Citizen') {
-      const [profile, latestReports] = await Promise.all([
+      const [profile, latestReports, totalReports, verifiedReports, pendingReports] = await Promise.all([
         UserProfile.findOne({ where: { user_id: req.user.id } }),
-        HazardReport.findAll({ where: { user_id: req.user.id }, order: [['created_at', 'DESC']], limit: 5 }),
+        HazardReport.findAll({ where: { user_id: req.user.id }, include: [{ model: AIAnalysis, as: 'aiAnalysis' }], order: [['created_at', 'DESC']], limit: 5 }),
+        HazardReport.count({ where: { user_id: req.user.id } }),
+        HazardReport.count({ where: { user_id: req.user.id, status: 'Verified' } }),
+        HazardReport.count({ where: { user_id: req.user.id, status: 'Pending' } }),
       ]);
-      return res.json({ role: 'Citizen', profile, statistics: { totalReports: profile?.reports_submitted || 0, verifiedReports: profile?.verified_reports || 0, pendingReports: profile?.pending_reports || 0 }, latestReports });
+      return res.json({ role: 'Citizen', profile, statistics: { totalReports, verifiedReports, pendingReports }, latestReports });
     }
     if (req.user.role === 'Authority') {
       const [reportsAssigned, reportsVerified, activeAlerts] = await Promise.all([
