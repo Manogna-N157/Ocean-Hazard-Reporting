@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
   email VARCHAR(150) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
   role ENUM('Citizen', 'Authority', 'Admin') NOT NULL DEFAULT 'Citizen',
-  approval_status ENUM('Approved', 'Pending') NOT NULL DEFAULT 'Approved',
+  approval_status ENUM('Approved', 'Pending', 'Rejected') NOT NULL DEFAULT 'Approved',
   government_authority_id VARCHAR(100) NULL,
   department_name VARCHAR(150) NULL,
   organization_name VARCHAR(150) NULL,
@@ -55,6 +55,18 @@ CREATE TABLE IF NOT EXISTS alerts (
   severity ENUM('Low', 'Medium', 'High', 'Critical') NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_alert_report FOREIGN KEY (report_id) REFERENCES hazard_reports(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS ai_analyses (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  report_id INT NOT NULL UNIQUE,
+  hazard_prediction ENUM('Oil Spill', 'Plastic Pollution', 'Cyclone Damage', 'High Waves', 'Marine Animal Death', 'Coastal Flooding', 'Ship Accident', 'Other') NOT NULL,
+  confidence_score DECIMAL(5,2) NOT NULL,
+  risk_level ENUM('Low', 'Medium', 'High') NOT NULL,
+  explanation TEXT NOT NULL,
+  recommendation VARCHAR(500) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_ai_analysis_report FOREIGN KEY (report_id) REFERENCES hazard_reports(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS social_media_analytics (

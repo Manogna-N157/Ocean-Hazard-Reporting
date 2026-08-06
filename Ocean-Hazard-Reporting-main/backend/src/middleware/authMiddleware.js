@@ -25,8 +25,11 @@ const authorize = (...roles) => (req, res, next) => {
 };
 
 const requireApprovedAuthority = (req, res, next) => {
-  if (req.user.role === 'Authority' && req.user.approval_status !== 'Approved') {
+  if (req.user.role === 'Authority' && req.user.approval_status === 'Pending') {
     return res.status(403).json({ message: 'Your authority account is awaiting administrator approval.' });
+  }
+  if (req.user.role === 'Authority' && req.user.approval_status === 'Rejected') {
+    return res.status(403).json({ message: 'Your authority account has been rejected.' });
   }
   next();
 };

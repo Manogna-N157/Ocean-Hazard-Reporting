@@ -2,7 +2,7 @@
 require('dotenv').config();
 const { DataTypes } = require('sequelize');
 const sequelize = require('../src/config/database');
-const { UserProfile } = require('../src/models');
+const { UserProfile, AIAnalysis } = require('../src/models');
 
 const addColumnIfMissing = async (table, column, definition) => {
   const columns = await sequelize.getQueryInterface().describeTable(table);
@@ -19,7 +19,8 @@ const addForeignKeyIfMissing = async (table, column, name, onDelete) => {
 
 const migrate = async () => {
   await sequelize.authenticate();
-  await addColumnIfMissing('users', 'approval_status', { type: DataTypes.ENUM('Approved', 'Pending'), allowNull: false, defaultValue: 'Approved' });
+  await addColumnIfMissing('users', 'approval_status', { type: DataTypes.ENUM('Approved', 'Pending', 'Rejected'), allowNull: false, defaultValue: 'Approved' });
+  await sequelize.query("ALTER TABLE users MODIFY approval_status ENUM('Approved', 'Pending', 'Rejected') NOT NULL DEFAULT 'Approved'");
   await addColumnIfMissing('users', 'government_authority_id', { type: DataTypes.STRING(100), allowNull: true });
   await addColumnIfMissing('users', 'department_name', { type: DataTypes.STRING(150), allowNull: true });
   await addColumnIfMissing('users', 'organization_name', { type: DataTypes.STRING(150), allowNull: true });
@@ -28,6 +29,8 @@ const migrate = async () => {
   await addForeignKeyIfMissing('hazard_reports', 'assigned_authority_id', 'fk_report_assigned_authority', 'SET NULL');
   await addForeignKeyIfMissing('hazard_reports', 'verified_by', 'fk_report_verifier', 'SET NULL');
   await UserProfile.sync();
+  await AIAnalysis.sync();
+  await addColumnIfMissing('ai_analyses', 'explanation', { type: DataTypes.TEXT, allowNull: false, defaultValue: '' });
   await sequelize.query(`INSERT INTO user_profiles (user_id, name, email, role, date_joined, reports_submitted, verified_reports, pending_reports)
     SELECT u.id, u.name, u.email, u.role, u.created_at,
       (SELECT COUNT(*) FROM hazard_reports r WHERE r.user_id = u.id),

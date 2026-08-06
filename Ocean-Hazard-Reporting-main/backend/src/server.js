@@ -20,6 +20,7 @@ app.use('/api/admin', require('./routes/adminRoutes'));
 app.use('/api/alerts', require('./routes/alertRoutes'));
 app.use('/api/dashboard', require('./routes/dashboardRoutes'));
 app.use('/api/analytics', require('./routes/analyticsRoutes'));
+app.use('/api/ai', require('./routes/aiRoutes'));
 app.use((req, res) => res.status(404).json({ message: 'Route not found.' }));
 app.use(errorHandler);
 

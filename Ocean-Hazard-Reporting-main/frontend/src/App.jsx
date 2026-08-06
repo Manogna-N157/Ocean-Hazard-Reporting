@@ -13,6 +13,7 @@ import HazardMap from './pages/HazardMap';
 import Alerts from './pages/Alerts';
 import Analytics from './pages/Analytics';
 import AdminDashboard from './pages/AdminDashboard';
+import AIAnalysis from './pages/AIAnalysis';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -84,6 +85,22 @@ function App() {
                 </DashboardLayout>
               </ProtectedRoute>
             } 
+          />
+          <Route
+            path="/ai-analysis/:reportId"
+            element={
+              <ProtectedRoute allowedRoles={['Citizen', 'Authority', 'Admin']}>
+                <DashboardLayout><AIAnalysis /></DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reports/:reportId"
+            element={
+              <ProtectedRoute allowedRoles={['Citizen', 'Authority', 'Admin']}>
+                <DashboardLayout><AIAnalysis /></DashboardLayout>
+              </ProtectedRoute>
+            }
           />
 
           {/* Protected Routes - Admin */}
