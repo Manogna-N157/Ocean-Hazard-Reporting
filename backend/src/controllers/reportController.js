@@ -59,8 +59,18 @@ const deleteReport = async (req, res, next) => {
 
 const getMapReports = async (req, res, next) => {
   try {
-    const reports = await HazardReport.findAll({ attributes: ['id', 'latitude', 'longitude', 'hazard_type', 'severity', 'status', 'location'] });
-    res.json({ reports });
+    const reports = await HazardReport.findAll({
+      where: { status: 'Verified' },
+      attributes: ['id', 'hazard_type', 'description', 'latitude', 'longitude', 'location', 'image_url', 'status', 'created_at'],
+      include: [{
+        model: AIAnalysis,
+        as: 'aiAnalysis',
+        attributes: ['risk_level', 'recommendation'],
+        required: false,
+      }],
+      order: [['created_at', 'DESC']],
+    });
+    res.json({ count: reports.length, reports });
   } catch (error) { next(error); }
 };
 

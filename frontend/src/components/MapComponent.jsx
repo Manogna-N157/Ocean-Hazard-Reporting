@@ -74,6 +74,9 @@ const MapComponent = ({ hazards, height = '400px' }) => {
                     <p style={{ margin: '0 0 6px 0', fontSize: '0.85rem', color: '#64748b' }}>
                       <strong>Location:</strong> {hazard.location}
                     </p>
+                    <p style={{ margin: '0 0 6px 0', fontSize: '0.85rem', color: '#334155' }}>
+                      <strong>Description:</strong> {hazard.description || 'No description provided.'}
+                    </p>
 
                     <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
                       <div>{getRiskBadge(riskLevel)}</div>
@@ -84,6 +87,9 @@ const MapComponent = ({ hazards, height = '400px' }) => {
                       <strong>AI Recommendation:</strong>
                       <p style={{ margin: '0.2rem 0 0 0', color: '#334155' }}>{recommendation}</p>
                     </div>
+                    <p style={{ margin: '0.6rem 0 0', fontSize: '0.78rem', color: '#64748b' }}>
+                      <strong>Reported:</strong> {hazard.created_at ? new Date(hazard.created_at).toLocaleDateString() : 'N/A'}
+                    </p>
                   </div>
                 </Popup>
               </Marker>
